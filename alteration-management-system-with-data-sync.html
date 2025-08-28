@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alteration Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 24px;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .header p {
+            color: #bfdbfe;
+            margin-top: 8px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1d4ed8;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1e40af;
+        }
+        
+        .btn-green {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-green:hover {
+            background: #047857;
+        }
+        
+        .btn-red {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-red:hover {
+            background: #b91c1c;
+        }
+        
+        .status-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .status-card {
+            background: #1d4ed8;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #1e40af;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+        
+        .progress-green { background: #10b981; }
+        .progress-yellow { background: #f59e0b; }
+        .progress-red { background: #ef4444; }
+        
+        .tabs {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab-list {
+            display: flex;
+            list-style: none;
+        }
+        
+        .tab-button {
+            padding: 16px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .tab-button:hover:not(.active) {
+            color: #374151;
+        }
+        
+        .content {
+            padding: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        
+        .work-type-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .work-type-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .work-type-item:hover {
+            border-color: #d1d5db;
+        }
+        
+        .work-type-item.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        
+        .work-type-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .work-type-title {
+            font-weight: 600;
+        }
+        
+        .work-type-meta {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .work-type-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .documents-panel {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .documents-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .points-badge {
+            background: #2563eb;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .document-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .checkmark {
+            color: #059669;
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .admin-section {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+        
+        .warning-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .warning-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #991b1b;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .warning-text {
+            color: #7f1d1d;
+            font-size: 14px;
+        }
+        
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .project-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .project-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .project-type {
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .project-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-demo {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .status-roughin {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-construction {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        
+        .status-punchlist {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .project-dates {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .date-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .project-actions .btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+        
+        .placeholder {
+            text-align: center;
+            padding: 48px;
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            color: #6b7280;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <h1>Alteration Management System</h1>
+                        <p>Manage alteration documents and track ongoing projects</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="toggleAdminMode()">
+                        <span id="admin-toggle">Admin Mode</span>
+                    </button>
+                </div>
+                
+                <!-- Status Bar -->
+                <div class="status-bar">
+                    <div class="status-card">
+                        <div class="status-header">
+                            <span>Building: <span id="building-name">East River House</span></span>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <div class="status-header">
+                            <span>Activity Level</span>
+                            <span><span id="current-points">12</span>/<span id="max-points">25</span> points used</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill progress-yellow" style="width: 48%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 8px;">
+                            <span><span id="available-points">13</span> points available</span>
+                            <span><span id="active-count">2</span> active projects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <ul class="tab-list">
+                    <li><button class="tab-button active" onclick="showTab('documents')">Document Requirements</button></li>
+                    <li><button class="tab-button" onclick="showTab('apartments')">Apartment Projects (<span id="tab-active-count">2</span> active)</button></li>
+                </ul>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- Documents Tab -->
+                <div id="documents-tab">
+                    <div class="grid grid-2">
+                        <!-- Left Panel -->
+                        <div>
+                            <h2 class="section-title">Select Type of Work</h2>
+                            <div class="work-type-list" id="work-type-list">
+                                <!-- Work types will be populated by JavaScript -->
+                            </div>
+                            
+                            <!-- Admin: Add Work Type -->
+                            <div id="admin-add-work-type" class="admin-section hidden">
+                                <h3 style="font-weight: 600; margin-bottom: 12px;">Add New Work Type</h3>
+                                <div class="form-group">
+                                    <input type="text" class="form-input" id="new-work-type" placeholder="Enter work type name...">
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" class="form-input" id="new-points" placeholder="Points (1-25)">
+                                </div>
+                                <button class="btn btn-green" onclick="addWorkType()" style="width: 100%;">Add Work Type</button>
+                            </div>
+                            
+                            <!-- Admin: Points Settings -->
+                            <div id="admin-points-settings" class="admin-section hidden">
+                                <h3 style="font-weight: 600; margin-bottom: 12px;">Building Capacity Settings</h3>
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
+                                    <input type="number" class="form-input" id="max-points-input" value="25" onchange="updateMaxPoints()">
+                                    <span>points max</span>
+                                </div>
+                                <p style="font-size: 14px; color: #92400e; margin-bottom: 16px;">
+                                    Higher points = more disruptive work. Adjust based on building tolerance.
+                                </p>
+                                <button class="btn btn-primary" onclick="changeAdminPassword()" style="width: 100%; margin-bottom: 8px;">
+                                    Change Admin Password
+                                </button>
+                                <button class="btn btn-red" onclick="clearAllData()" style="width: 100%;">
+                                    Reset All Data
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel -->
+                        <div>
+                            <div id="documents-display">
+                                <div class="placeholder">
+                                    <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Select a Work Type</h3>
+                                    <p>Choose an alteration type from the left to see required documents</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Apartments Tab -->
+                <div id="apartments-tab" class="hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h2 class="section-title" style="margin-bottom: 0;">Apartment Alteration Projects</h2>
+                        <div style="display: flex; gap: 16px; font-size: 14px;">
+                            <span><span id="apartment-active-count">2</span> Active</span>
+                            <span><span id="apartment-completed-count">0</span> Completed</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin: Add Apartment -->
+                    <div id="admin-add-apartment" class="admin-section hidden">
+                        <h3 style="font-weight: 600; margin-bottom: 16px;">Add New Apartment Project</h3>
+                        <div class="form-grid">
+                            <input type="text" class="form-input" id="new-unit" placeholder="Unit number (e.g., 3A)">
+                            <select class="form-select" id="new-apartment-work-type">
+                                <option value="">Select work type</option>
+                            </select>
+                            <input type="date" class="form-input" id="new-start-date">
+                            <input type="date" class="form-input" id="new-end-date">
+                            <select class="form-select" id="new-phase">
+                                <option value="">Select phase</option>
+                                <option value="Demo Phase">Demo Phase</option>
+                                <option value="Rough-in Phase">Rough-in Phase</option>
+                                <option value="Construction Phase">Construction Phase</option>
+                                <option value="Punch-list Phase">Punch-list Phase</option>
+                            </select>
+                        </div>
+                        <div id="capacity-warning" class="warning-box hidden">
+                            <div class="warning-header">
+                                <span>⚠️</span>
+                                <span>Capacity Warning</span>
+                            </div>
+                            <div class="warning-text">
+                                Adding this project would exceed the building's point limit. Consider waiting for current projects to complete.
+                            </div>
+                        </div>
+                        <button class="btn btn-green" onclick="addApartment()" style="margin-top: 16px;">Add Project</button>
+                    </div>
+                    
+                    <!-- Projects Grid -->
+                    <div class="project-grid" id="projects-grid">
+                        <!-- Projects will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global state
+        let isAdminMode = false;
+        let selectedWorkType = null;
+        let currentTab = 'documents';
+        let adminPassword = 'admin123'; // Default password
+        
+        // Load data from localStorage on startup
+        function loadFromStorage() {
+            const savedData = localStorage.getItem('alterationSystemData');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    workTypes = data.workTypes || workTypes;
+                    apartments = data.apartments || apartments;
+                    maxPoints = data.maxPoints || maxPoints;
+                    buildingName = data.buildingName || buildingName;
+                    adminPassword = data.adminPassword || adminPassword;
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                }
+            }
+        }
+        
+        // Save data to localStorage
+        function saveToStorage() {
+            const dataToSave = {
+                workTypes,
+                apartments,
+                maxPoints,
+                buildingName,
+                adminPassword,
+                lastSaved: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('alterationSystemData', JSON.stringify(dataToSave));
+                showSuccessMessage('Changes saved automatically');
+            } catch (e) {
+                console.error('Error saving data:', e);
+                alert('Error saving data. Your browser storage may be full.');
+            }
+        }
+        
+        // Initial data
+        let workTypes = [
+            {
+                id: 1,
+                name: 'Full Renovation',
+                points: 8,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'A set of plans for the entire apartment, or if only a kitchen and/or bathroom(s) are being renovated, a plan for each individual room.',
+                    'For simple renovations (such as the renovation of a bathroom), the plans provided do not necessarily need to be prepared by an architect or engineer. However, the plans must clearly represent the proposed work.',
+                    'For more substantial renovations, including those that require filing of the project with the New York City Department of Buildings must be prepared and stamped by a licensed architect or engineer',
+                    'At least three individual plans for the apartment or rooms to be renovated on individual sheets must be provided, as follows: Existing conditions, Demolition, Construction',
+                    'All Necessary Permits (LAA, Electrical etc).',
+                    'For any tub-to-tub replacement, tub-to-shower conversion, or shower upgrade, a signed written consent letter from the neighbor in the apartment below, permitting access to perform the drain connection work, must be submitted prior to approval.',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor',
+                    'If any electrical work is being proposed, a separate plan showing the proposed electrical work must be provided'
+                ]
+            },
+            {
+                id: 2,
+                name: 'Bathroom Renovation',
+                points: 4,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'A set of plans for the entire apartment, or if only a kitchen and/or bathroom(s) are being renovated, a plan for each individual room.',
+                    'For simple renovations (such as the renovation of a bathroom), the plans provided do not necessarily need to be prepared by an architect or engineer. However, the plans must clearly represent the proposed work.',
+                    'At least three individual plans for the apartment or rooms to be renovated on individual sheets must be provided, as follows: Existing conditions, Demolition, Construction',
+                    'All Necessary Permits (LAA, Electrical etc).',
+                    'For any tub-to-tub replacement, tub-to-shower conversion, or shower upgrade, a signed written consent letter from the neighbor in the apartment below, permitting access to perform the drain connection work, must be submitted prior to approval.',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor',
+                    'If any electrical work is being proposed, a separate plan showing the proposed electrical work must be provided'
+                ]
+            },
+            {
+                id: 3,
+                name: 'Bathroom Cosmetic Work (excluding tile work)',
+                points: 2,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'At least three individual plans for the apartment or rooms to be renovated on individual sheets must be provided, as follows: Existing conditions, Demolition, Construction',
+                    'All Necessary Permits (LAA, Electrical etc).',
+                    'If any electrical work is being proposed, a separate plan showing the proposed electrical work must be provided'
+                ]
+            },
+            {
+                id: 4,
+                name: 'Kitchen Renovation',
+                points: 4,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'At least three individual plans for the apartment or rooms to be renovated on individual sheets must be provided, as follows: Existing conditions, Demolition, Construction',
+                    'All Necessary Permits (LAA, Electrical etc).',
+                    'If any electrical work is being proposed, a separate plan showing the proposed electrical work must be provided',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor'
+                ]
+            },
+            {
+                id: 5,
+                name: 'Kitchen Cosmetic Work',
+                points: 2,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'If any electrical work is being proposed, a separate plan showing the proposed electrical work must be provided',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.'
+                ]
+            },
+            {
+                id: 6,
+                name: 'Floor Replacement',
+                points: 2,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor'
+                ]
+            },
+            {
+                id: 7,
+                name: 'Floor Refinishing',
+                points: 1,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.'
+                ]
+            },
+            {
+                id: 8,
+                name: 'Bathtub Reglazing',
+                points: 1,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A neighbor notification letter must be submitted for distribution, upon approval, to the apartments above, below, and all apartments on the same floor',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.'
+                ]
+            },
+            {
+                id: 9,
+                name: 'Painting of the Apartment',
+                points: 1,
+                documents: [
+                    'Signed Alteration Package',
+                    'Signed Construction Rules & Guidelines',
+                    'A written scope of work, listing, in detail, the work to be performed in each and every room of the apartment. A list of rooms where no work is to be performed must be included.',
+                    'General Contractor License or EPA Lead Paint Certificate'
+                ]
+            }
+        ];
+        
+        let apartments = [
+            {
+                id: 1,
+                unit: 'Unit 2A',
+                workType: 'Bathroom Renovation',
+                points: 8,
+                startDate: '2025-08-25',
+                endDate: '2025-09-05',
+                status: 'In Progress',
+                phase: 'Construction Phase'
+            },
+            {
+                id: 2,
+                unit: 'Unit 5B',
+                workType: 'Flooring Replacement',
+                points: 4,
+                startDate: '2025-08-20',
+                endDate: '2025-08-30',
+                status: 'In Progress',
+                phase: 'Rough-in Phase'
+            }
+        ];
+        
+        let maxPoints = 25;
+        let buildingName = 'East River House';
+        
+        // Helper functions
+        function getCurrentPoints() {
+            return apartments
+                .filter(apt => apt.status === 'In Progress')
+                .reduce((sum, apt) => sum + apt.points, 0);
+        }
+        
+        function canAddWork(points) {
+            return getCurrentPoints() + points <= maxPoints;
+        }
+        
+        function getPhaseColor(phase) {
+            switch (phase) {
+                case 'Demo Phase': return 'status-demo';
+                case 'Rough-in Phase': return 'status-roughin';
+                case 'Construction Phase': return 'status-construction';
+                case 'Punch-list Phase': return 'status-punchlist';
+                default: return 'status-demo';
+            }
+        }
+        
+        function getPhaseIcon(phase) {
+            switch (phase) {
+                case 'Demo Phase': return '🔨';
+                case 'Rough-in Phase': return '🔧';
+                case 'Construction Phase': return '🚧';
+                case 'Punch-list Phase': return '✅';
+                default: return '🔨';
+            }
+        }
+        
+        function showSuccessMessage(message) {
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = `
+                position: fixed; top: 20px; right: 20px; background: #10b981; color: white;
+                padding: 12px 16px; border-radius: 8px; z-index: 1000; font-size: 14px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            `;
+            successMsg.textContent = message;
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
+        }
+        
+        function updateStatusBar() {
+            const currentPoints = getCurrentPoints();
+            const availablePoints = maxPoints - currentPoints;
+            const activeCount = apartments.filter(apt => apt.status === 'In Progress').length;
+            const completedCount = apartments.filter(apt => apt.status === 'Completed').length;
+            
+            document.getElementById('current-points').textContent = currentPoints;
+            document.getElementById('max-points').textContent = maxPoints;
+            document.getElementById('available-points').textContent = availablePoints;
+            document.getElementById('active-count').textContent = activeCount;
+            document.getElementById('tab-active-count').textContent = activeCount;
+            document.getElementById('apartment-active-count').textContent = activeCount;
+            document.getElementById('apartment-completed-count').textContent = completedCount;
+            
+            // Update progress bar
+            const percentage = (currentPoints / maxPoints) * 100;
+            const progressBar = document.getElementById('progress-fill');
+            progressBar.style.width = Math.min(percentage, 100) + '%';
+            
+            // Update progress bar color
+            progressBar.className = 'progress-fill ' + 
+                (currentPoints > maxPoints * 0.8 ? 'progress-red' : 
+                 currentPoints > maxPoints * 0.6 ? 'progress-yellow' : 'progress-green');
+        }
+        
+        // Tab functions
+        function showTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide tab content
+            document.getElementById('documents-tab').classList.toggle('hidden', tabName !== 'documents');
+            document.getElementById('apartments-tab').classList.toggle('hidden', tabName !== 'apartments');
+            
+            currentTab = tabName;
+            
+            if (tabName === 'apartments') {
+                renderApartments();
+                updateApartmentWorkTypeSelect();
+            }
+        }
+        
+        // Admin mode functions
+        function toggleAdminMode() {
+            if (!isAdminMode) {
+                // Entering admin mode - require password
+                const password = prompt('Enter admin password to access admin features:');
+                
+                if (password !== adminPassword) {
+                    alert('Incorrect password. Access denied.');
+                    return;
+                }
+            }
+            
+            isAdminMode = !isAdminMode;
+            document.getElementById('admin-toggle').textContent = isAdminMode ? 'User Mode' : 'Admin Mode';
+            
+            // Show/hide admin sections
+            document.querySelectorAll('[id^="admin-"]').forEach(el => {
+                el.classList.toggle('hidden', !isAdminMode);
+            });
+            
+            renderWorkTypes();
+            renderApartments();
+            
+            if (isAdminMode) {
+                showSuccessMessage('Admin mode activated');
+            }
+        }
+        
+        function changeAdminPassword() {
+            if (!isAdminMode) {
+                alert('You must be in admin mode to change the password.');
+                return;
+            }
+            
+            const currentPassword = prompt('Enter current admin password:');
+            if (currentPassword !== adminPassword) {
+                alert('Incorrect current password.');
+                return;
+            }
+            
+            const newPassword = prompt('Enter new admin password:');
+            if (!newPassword || newPassword.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+            
+            const confirmPassword = prompt('Confirm new admin password:');
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+            
+            adminPassword = newPassword;
+            saveToStorage();
+            showSuccessMessage('Admin password updated successfully');
+        }
+        
+        function clearAllData() {
+            if (!isAdminMode) {
+                alert('You must be in admin mode to reset data.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to reset ALL data? This will delete all work types, apartments, and custom settings. This action cannot be undone.')) {
+                if (confirm('This is your final warning. ALL your data will be permanently deleted. Are you absolutely sure?')) {
+                    localStorage.removeItem('alterationSystemData');
+                    location.reload(); // Reload the page to restore default data
+                }
+            }
+        }
+        
+        // Work type functions
+        function renderWorkTypes() {
+            const container = document.getElementById('work-type-list');
+            const currentPoints = getCurrentPoints();
+            
+            container.innerHTML = workTypes.map(workType => {
+                const canAdd = canAddWork(workType.points);
+                const isSelected = selectedWorkType && selectedWorkType.id === workType.id;
+                
+                return `
+                    <div class="work-type-item ${isSelected ? 'selected' : ''}" onclick="selectWorkType(${workType.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div class="work-type-title">${workType.name}</div>
+                                <div class="work-type-meta">${workType.documents.length} documents • ${workType.points} points</div>
+                            </div>
+                            <div class="work-type-badges">
+                                <span class="badge ${canAdd ? 'badge-green' : 'badge-red'}">
+                                    ${canAdd ? 'Available' : 'Over Limit'}
+                                </span>
+                                ${isAdminMode ? `<button onclick="event.stopPropagation(); deleteWorkType(${workType.id})" class="btn btn-red" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectWorkType(id) {
+            selectedWorkType = workTypes.find(wt => wt.id === id);
+            renderWorkTypes();
+            renderDocuments();
+        }
+        
+        function renderDocuments() {
+            const container = document.getElementById('documents-display');
+            
+            if (!selectedWorkType) {
+                container.innerHTML = `
+                    <div class="placeholder">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                        <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Select a Work Type</h3>
+                        <p>Choose an alteration type from the left to see required documents</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <span style="font-size: 24px;">📋</span>
+                        <h2 style="font-size: 1.25rem; font-weight: 600;">Required Documents for ${selectedWorkType.name}</h2>
+                    </div>
+                    
+                    <div class="documents-panel">
+                        <div class="documents-header">
+                            <p style="color: #1e40af; font-size: 14px;">
+                                Please ensure you have all the following documents before proceeding:
+                            </p>
+                            <span class="points-badge">${selectedWorkType.points} points</span>
+                        </div>
+                        
+                        <ul class="document-list">
+                            ${selectedWorkType.documents.map((doc, index) => `
+                                <li class="document-item">
+                                    <span class="checkmark">✓</span>
+                                    <span>${doc}</span>
+                                    ${isAdminMode ? `<button onclick="removeDocument(${selectedWorkType.id}, ${index})" class="btn btn-red" style="margin-left: auto; padding: 4px 8px; font-size: 12px;">Remove</button>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                        
+                        ${selectedWorkType.documents.length === 0 ? '<p style="text-align: center; color: #6b7280; font-style: italic; padding: 16px;">No documents added yet for this work type.</p>' : ''}
+                    </div>
+                    
+                    ${isAdminMode ? `
+                        <div class="admin-section">
+                            <h3 style="font-weight: 600; margin-bottom: 12px;">Add Required Document</h3>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" class="form-input" id="new-document" placeholder="Enter document name..." onkeypress="if(event.key==='Enter') addDocument(${selectedWorkType.id})">
+                                <button class="btn btn-primary" onclick="addDocument(${selectedWorkType.id})">Add</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        function addWorkType() {
+            const nameInput = document.getElementById('new-work-type');
+            const pointsInput = document.getElementById('new-points');
+            
+            const name = nameInput.value.trim();
+            const points = parseInt(pointsInput.value);
+            
+            if (name && points) {
+                workTypes.push({
+                    id: Date.now(),
+                    name: name,
+                    points: points,
+                    documents: []
+                });
+                
+                nameInput.value = '';
+                pointsInput.value = '';
+                
+                renderWorkTypes();
+                updateApartmentWorkTypeSelect();
+                saveToStorage();
+                showSuccessMessage('Work type added successfully');
+            }
+        }
+        
+        function deleteWorkType(id) {
+            if (confirm('Are you sure you want to delete this work type?')) {
+                workTypes = workTypes.filter(wt => wt.id !== id);
+                if (selectedWorkType && selectedWorkType.id === id) {
+                    selectedWorkType = null;
+                    renderDocuments();
+                }
+                renderWorkTypes();
+                updateApartmentWorkTypeSelect();
+                saveToStorage();
+                showSuccessMessage('Work type deleted successfully');
+            }
+        }
+        
+        function addDocument(workTypeId) {
+            const input = document.getElementById('new-document');
+            const docName = input.value.trim();
+            
+            if (docName) {
+                const workType = workTypes.find(wt => wt.id === workTypeId);
+                if (workType) {
+                    workType.documents.push(docName);
+                    input.value = '';
+                    renderDocuments();
+                    saveToStorage();
+                    showSuccessMessage('Document added successfully');
+                }
+            }
+        }
+        
+        function removeDocument(workTypeId, docIndex) {
+            if (confirm('Are you sure you want to remove this document?')) {
+                const workType = workTypes.find(wt => wt.id === workTypeId);
+                if (workType) {
+                    workType.documents.splice(docIndex, 1);
+                    renderDocuments();
+                    saveToStorage();
+                    showSuccessMessage('Document removed successfully');
+                }
+            }
+        }
+        
+        function updateMaxPoints() {
+            const input = document.getElementById('max-points-input');
+            maxPoints = parseInt(input.value) || 25;
+            updateStatusBar();
+            checkCapacityWarning();
+            saveToStorage();
+            showSuccessMessage('Maximum points updated');
+        }
+        
+        // Apartment functions
+        function renderApartments() {
+            const container = document.getElementById('projects-grid');
+            
+            if (apartments.length === 0) {
+                container.innerHTML = `
+                    <div class="placeholder" style="grid-column: 1 / -1;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🏠</div>
+                        <h3 style="font-size: 1.1rem; margin-bottom: 8px;">No Projects Yet</h3>
+                        <p>Add apartment alteration projects to track ongoing work</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = apartments.map(apartment => `
+                <div class="project-card">
+                    <div class="project-header">
+                        <div>
+                            <div class="project-title">${apartment.unit}</div>
+                            <div class="project-type">${apartment.workType}</div>
+                        </div>
+                        <div class="project-badges">
+                            <span class="status-badge ${apartment.status === 'Completed' ? 'status-completed' : getPhaseColor(apartment.phase)}">
+                                ${getPhaseIcon(apartment.phase)} ${apartment.status === 'Completed' ? 'Completed' : apartment.phase}
+                            </span>
+                            <span class="badge" style="background: #f3f4f6; color: #374151;">
+                                ${apartment.points} pts
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="project-dates">
+                        <div class="date-item">
+                            <span>📅</span>
+                            <span>Start: ${apartment.startDate}</span>
+                        </div>
+                        <div class="date-item">
+                            <span>📅</span>
+                            <span>End: ${apartment.endDate}</span>
+                        </div>
+                    </div>
+                    
+                    ${isAdminMode ? `
+                        <div class="project-actions">
+                            ${apartment.status === 'In Progress' ? `
+                                <div style="margin-bottom: 8px;">
+                                    <select class="form-select" onchange="updatePhase(${apartment.id}, this.value)" style="font-size: 12px; padding: 4px 8px;">
+                                        <option value="Demo Phase" ${apartment.phase === 'Demo Phase' ? 'selected' : ''}>🔨 Demo Phase</option>
+                                        <option value="Rough-in Phase" ${apartment.phase === 'Rough-in Phase' ? 'selected' : ''}>🔧 Rough-in Phase</option>
+                                        <option value="Construction Phase" ${apartment.phase === 'Construction Phase' ? 'selected' : ''}>🚧 Construction Phase</option>
+                                        <option value="Punch-list Phase" ${apartment.phase === 'Punch-list Phase' ? 'selected' : ''}>✅ Punch-list Phase</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-green" onclick="completeApartment(${apartment.id})" style="flex: 1;">Mark Complete</button>
+                                    <button class="btn btn-red" onclick="deleteApartment(${apartment.id})">Delete</button>
+                                </div>
+                            ` : `
+                                <button class="btn btn-red" onclick="deleteApartment(${apartment.id})" style="width: 100%;">Delete</button>
+                            `}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function updateApartmentWorkTypeSelect() {
+            const select = document.getElementById('new-apartment-work-type');
+            if (select) {
+                select.innerHTML = '<option value="">Select work type</option>' +
+                    workTypes.map(wt => `<option value="${wt.name}">${wt.name} (${wt.points} pts)</option>`).join('');
+            }
+        }
+        
+        function checkCapacityWarning() {
+            const select = document.getElementById('new-apartment-work-type');
+            const warning = document.getElementById('capacity-warning');
+            
+            if (select && warning) {
+                const selectedWorkTypeName = select.value;
+                const selectedWorkType = workTypes.find(wt => wt.name === selectedWorkTypeName);
+                
+                if (selectedWorkType && !canAddWork(selectedWorkType.points)) {
+                    warning.classList.remove('hidden');
+                } else {
+                    warning.classList.add('hidden');
+                }
+            }
+        }
+        
+        function addApartment() {
+            const unitInput = document.getElementById('new-unit');
+            const workTypeSelect = document.getElementById('new-apartment-work-type');
+            const startDateInput = document.getElementById('new-start-date');
+            const endDateInput = document.getElementById('new-end-date');
+            const phaseSelect = document.getElementById('new-phase');
+            
+            const unit = unitInput.value.trim();
+            const workTypeName = workTypeSelect.value;
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            const phase = phaseSelect.value;
+            
+            if (unit && workTypeName && startDate && endDate && phase) {
+                const workType = workTypes.find(wt => wt.name === workTypeName);
+                
+                if (workType && canAddWork(workType.points)) {
+                    apartments.push({
+                        id: Date.now(),
+                        unit: unit,
+                        workType: workTypeName,
+                        points: workType.points,
+                        startDate: startDate,
+                        endDate: endDate,
+                        status: 'In Progress',
+                        phase: phase
+                    });
+                    
+                    // Clear form
+                    unitInput.value = '';
+                    workTypeSelect.value = '';
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                    phaseSelect.value = '';
+                    
+                    renderApartments();
+                    updateStatusBar();
+                    checkCapacityWarning();
+                    saveToStorage();
+                    showSuccessMessage('Apartment project added successfully');
+                } else {
+                    alert('Cannot add project: would exceed building capacity limit');
+                }
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+        
+        function updatePhase(apartmentId, newPhase) {
+            const apartment = apartments.find(apt => apt.id === apartmentId);
+            if (apartment) {
+                apartment.phase = newPhase;
+                renderApartments();
+                saveToStorage();
+                showSuccessMessage('Project phase updated');
+            }
+        }
+        
+        function completeApartment(id) {
+            if (confirm('Mark this project as completed?')) {
+                const apartment = apartments.find(apt => apt.id === id);
+                if (apartment) {
+                    apartment.status = 'Completed';
+                    renderApartments();
+                    updateStatusBar();
+                    saveToStorage();
+                    showSuccessMessage('Project marked as completed');
+                }
+            }
+        }
+        
+        function deleteApartment(id) {
+            if (confirm('Are you sure you want to delete this apartment project?')) {
+                apartments = apartments.filter(apt => apt.id !== id);
+                renderApartments();
+                updateStatusBar();
+                saveToStorage();
+                showSuccessMessage('Apartment project deleted');
+            }
+        }
+        
+        // Initialize the app
+        function init() {
+            // Load saved data first
+            loadFromStorage();
+            
+            // Update the max points input field
+            document.getElementById('max-points-input').value = maxPoints;
+            
+            renderWorkTypes();
+            renderDocuments();
+            updateStatusBar();
+            updateApartmentWorkTypeSelect();
+            
+            // Set up event listeners
+            const workTypeSelect = document.getElementById('new-apartment-work-type');
+            if (workTypeSelect) {
+                workTypeSelect.addEventListener('change', checkCapacityWarning);
+            }
+            
+            // Show loading message
+            const loadedData = localStorage.getItem('alterationSystemData');
+            if (loadedData) {
+                showSuccessMessage('Previous data loaded successfully');
+            }
+        }
+        
+        // Start the app when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <!-- Data Sync Toolbar -->
+    <div id="data-sync-toolbar" style="position:fixed; right:12px; bottom:12px; z-index:9999; display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="exportDataBtn" title="Download current data as JSON" style="padding:8px 12px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer;">Export Data</button>
+        <button id="importDataBtn" title="Load data from a JSON file" style="padding:8px 12px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer;">Import Data</button>
+        <button id="syncHostedBtn" title="Fetch data from ams-data.json on this site" style="padding:8px 12px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer;">Sync from Hosted</button>
+        <input type="file" id="importFileInput" accept="application/json" style="display:none" />
+    </div>
+
+
+    <script>
+    // ===== Data Export / Import / Hosted Sync =====
+    (function() {
+        const LOCAL_KEY = 'alterationSystemData';
+
+        function download(filename, text) {
+            const blob = new Blob([text], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+
+        function getTimestamp() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+        }
+
+        window.exportAppData = function exportAppData() {
+            try {
+                const raw = localStorage.getItem(LOCAL_KEY);
+                if (!raw) {
+                    alert('No data found in localStorage to export.');
+                    return;
+                }
+                // Validate JSON
+                JSON.parse(raw);
+                download(`ams-data_${getTimestamp()}.json`, raw);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to export data: ' + e.message);
+            }
+        };
+
+        window.importAppData = function importAppData(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const text = reader.result;
+                    const obj = JSON.parse(text);
+                    localStorage.setItem(LOCAL_KEY, JSON.stringify(obj));
+                    alert('Data imported successfully. The page will now reload.');
+                    location.reload();
+                } catch (e) {
+                    console.error(e);
+                    alert('Invalid JSON file. Please select a valid export.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        async function fetchHostedData(showAlerts=true) {
+            try {
+                const resp = await fetch('ams-data.json?cb=' + Date.now(), { cache: 'no-store' });
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const data = await resp.json();
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+                if (showAlerts) alert('Hosted data synced successfully. The page will now reload.');
+                location.reload();
+            } catch (e) {
+                console.warn('Hosted data sync failed:', e);
+                if (showAlerts) alert('Could not fetch ams-data.json. Make sure it exists in the same directory.');
+            }
+        }
+
+        // Auto-sync from hosted file unless disabled with ?nosync=1
+        (function autoSync() {
+            const qs = new URLSearchParams(location.search);
+            if (qs.get('nosync') === '1') return;
+            // Only attempt auto-sync if no local data is present
+            if (!localStorage.getItem(LOCAL_KEY)) {
+                fetchHostedData(false);
+            }
+        })();
+
+        // Hook up buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportBtn = document.getElementById('exportDataBtn');
+            const importBtn = document.getElementById('importDataBtn');
+            const syncBtn   = document.getElementById('syncHostedBtn');
+            const fileInput = document.getElementById('importFileInput');
+
+            if (exportBtn) exportBtn.addEventListener('click', exportAppData);
+            if (importBtn) importBtn.addEventListener('click', () => fileInput && fileInput.click());
+            if (syncBtn)   syncBtn.addEventListener('click', () => fetchHostedData(true));
+            if (fileInput) fileInput.addEventListener('change', (e) => importAppData(e.target.files[0]));
+        });
+    })();
+    // ===== End Data Export / Import / Hosted Sync =====
+    </script>
+
+</body>
+</html>
