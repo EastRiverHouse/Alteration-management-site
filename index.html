@@ -501,22 +501,41 @@
         // Data loading and sync
         async function loadData() {
             try {
-                updateSyncStatus('Syncing data...', true);
+                updateSyncStatus('Loading data...', true);
                 
-                // Try to load from hosted JSON first
-                const response = await fetch('ams-data.json?cb=' + Date.now(), { cache: 'no-store' });
+                // Add more aggressive cache busting and timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                const response = await fetch('ams-data.json?v=' + Date.now() + '&cb=' + Math.random(), { 
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
                 if (response.ok) {
                     const data = await response.json();
                     processData(data);
-                    updateSyncStatus('Data synced successfully', false);
+                    updateSyncStatus('Data loaded successfully', false);
                 } else {
-                    throw new Error('No hosted data found');
+                    throw new Error('Failed to load data (HTTP ' + response.status + ')');
                 }
             } catch (error) {
                 console.warn('Failed to load hosted data:', error);
+                
+                if (error.name === 'AbortError') {
+                    updateSyncStatus('Connection timeout - using default data', false);
+                } else {
+                    updateSyncStatus('Connection failed - using default data', false);
+                }
+                
                 // Fallback to default data
                 loadDefaultData();
-                updateSyncStatus('Using default data', false);
             }
         }
         
@@ -561,12 +580,17 @@
             const syncText = document.getElementById('sync-text');
             const syncStatus = document.getElementById('sync-status');
             
-            syncText.textContent = message;
-            
             if (loading) {
                 syncStatus.innerHTML = '<div class="loading"></div><span>' + message + '</span>';
             } else {
+                // Show success status briefly, then hide the sync indicator
                 syncStatus.innerHTML = '<span>✅</span><span>' + message + '</span>';
+                
+                // Hide the sync status after 3 seconds
+                setTimeout(() => {
+                    syncStatus.style.opacity = '0.6';
+                    syncStatus.innerHTML = '<span>🔄</span><span>Auto-sync active</span>';
+                }, 3000);
             }
         }
         
@@ -803,6 +827,7 @@
                 await loadData();
             } catch (error) {
                 console.error('Refresh failed:', error);
+                updateSyncStatus('Refresh failed', false);
             }
             
             setTimeout(() => {
@@ -810,18 +835,54 @@
             }, 1000);
         }
         
-        // Auto-refresh every 30 seconds
+        // Auto-refresh every 60 seconds with better error handling
         setInterval(async () => {
             try {
-                const response = await fetch('ams-data.json?cb=' + Date.now(), { cache: 'no-store' });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout for background sync
+                
+                const response = await fetch('ams-data.json?v=' + Date.now(), { 
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
                 if (response.ok) {
                     const data = await response.json();
-                    processData(data);
+                    const currentDataString = JSON.stringify({
+                        apartments: allProjects,
+                        waitingList: waitingList,
+                        maxPoints: maxPoints
+                    });
+                    const newDataString = JSON.stringify({
+                        apartments: data.apartments || [],
+                        waitingList: data.waitingList || [],
+                        maxPoints: data.maxPoints || maxPoints
+                    });
+                    
+                    // Only update if data has actually changed
+                    if (currentDataString !== newDataString) {
+                        processData(data);
+                        
+                        // Show brief update notification
+                        const syncStatus = document.getElementById('sync-status');
+                        syncStatus.style.opacity = '1';
+                        syncStatus.innerHTML = '<span>🔄</span><span>Data updated</span>';
+                        
+                        setTimeout(() => {
+                            syncStatus.style.opacity = '0.6';
+                            syncStatus.innerHTML = '<span>🔄</span><span>Auto-sync active</span>';
+                        }, 2000);
+                    }
                 }
             } catch (error) {
-                console.log('Auto-refresh failed silently');
+                console.log('Background sync failed silently');
             }
-        }, 30000);
+        }, 60000); // Changed from 30 seconds to 60 seconds
         
         // Initialize dashboard
         window.addEventListener('DOMContentLoaded', loadData);
